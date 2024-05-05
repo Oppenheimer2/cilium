@@ -38,7 +38,11 @@ var encryptStatusCmd = &cobra.Command{
 		common.RequireRootPrivilege("cilium encrypt status")
 		status, err := getEncryptionStatus()
 		if err != nil {
-			Fatalf("Cannot get daemon encryption status: %s", err)
+			if strings.Contains(err.Error(), "dial unix /var/run/cilium/cilium.sock: connect: no such file or directory") {
+				Fatalf("Cannot connect to agent")
+			} else {
+				Fatalf("Cannot get daemon encryption status: %s", err)
+			}
 		}
 		if command.OutputOption() {
 			if err := command.PrintOutput(status); err != nil {
